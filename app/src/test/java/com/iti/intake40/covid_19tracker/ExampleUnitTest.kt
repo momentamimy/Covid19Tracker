@@ -1,4 +1,4 @@
-package com.ITIKotlin.covid19trackerapp
+package com.iti.intake40.covid_19tracker
 
 import org.junit.Test
 
