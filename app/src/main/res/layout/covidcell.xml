@@ -1,33 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:weightSum="4">
 
-    <TextView
-        android:id="@+id/countryName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:singleLine="false" />
+    android:stretchColumns="*">
 
-    <TextView
-        android:id="@+id/confirmed"
-        android:layout_width="0dp"
+    <TableRow
+        android:id="@+id/county_row"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1" />
+        >
 
-    <TextView
-        android:id="@+id/recovered"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1" />
 
-    <TextView
-        android:id="@+id/death"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1" />
-</LinearLayout>
+        <TextView
+            android:id="@+id/countryName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            android:background="@drawable/border"
+            android:gravity="center"
+            android:padding="10dp"
+            android:singleLine="true"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="16sp"
+
+            android:textStyle="bold" />
+
+
+
+        <TextView
+            android:id="@+id/confirmed"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            android:background="@drawable/border4"
+            android:gravity="center"
+            android:padding="10dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:singleLine="true"/>
+
+        <TextView
+            android:id="@+id/recovered"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            android:background="@drawable/border2"
+            android:gravity="center"
+            android:padding="10dp"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+
+        <TextView
+            android:id="@+id/death"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            android:background="@drawable/border3"
+            android:gravity="center"
+            android:padding="10dp"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+    </TableRow>
+
+
+</TableLayout>

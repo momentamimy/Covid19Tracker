@@ -24,18 +24,21 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+
         setupViews()
         showProgressDialog()
     }
 
     override fun onStart() {
         super.onStart()
+
         loadDataLocal()
     }
 
     private fun setupViews() {
         covidRecycle.layoutManager = LinearLayoutManager(this)
         covidRecycle.adapter = HomeAdapter(dataList, this)
+        noResultLayout.visibility = View.GONE
         reloadButton.setOnClickListener{
             showProgressDialog()
             loadData()
@@ -44,15 +47,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun showReloadMessage()
     {
-        reloadButton.visibility = View.VISIBLE
-        textNoInternet.visibility = View.VISIBLE
+        noResultLayout.visibility = View.VISIBLE
         covidRecycle.visibility = View.GONE
+        table_header.visibility = View.GONE
     }
     private fun hideReloadMessage()
     {
-        reloadButton.visibility = View.GONE
-        textNoInternet.visibility = View.GONE
+        noResultLayout.visibility = View.GONE
         covidRecycle.visibility = View.VISIBLE
+        table_header.visibility = View.VISIBLE
     }
 
     private fun showProgressDialog() {
@@ -70,6 +73,7 @@ class MainActivity : AppCompatActivity() {
                     progressDialog.dismiss()
                     showReloadMessage()
                 }
+
             })
     }
 

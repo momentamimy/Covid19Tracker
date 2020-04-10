@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">COVID-19 Tracker</string>
+    <string name="check_the_internet_and_click_the_button">check the internet and click the button</string>
+    <string name="reload">reload</string>
+    <string name="country_name">Country</string>
+    <string name="confirmed">Confirmed Cases</string>
+    <string name="recovered">Recovered Cases</string>
+    <string name="total_deaths">Total deaths</string>
 </resources>
