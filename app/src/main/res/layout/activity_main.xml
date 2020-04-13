@@ -7,7 +7,33 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:weightSum="10"
-    tools:context=".view.activities.MainActivity">
+    tools:context=".view.activities.MainActivity"
+   >
+
+    <LinearLayout
+        android:background="@android:color/black"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center|end">
+
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/country_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@android:color/white"
+            android:inputType="textNoSuggestions"
+            android:textCursorDrawable="@null"
+            app:iconifiedByDefault="false"
+            app:queryBackground="@null"
+            app:queryHint="@string/searchHint" />
+    </LinearLayout>
+
+
+
+
 
     <LinearLayout
         android:id="@+id/noResultLayout"
@@ -106,5 +132,5 @@
         android:id="@+id/covidRecycle"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="9.3" />
+        android:layout_weight="8.3" />
 </LinearLayout>

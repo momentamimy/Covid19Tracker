@@ -11,12 +11,18 @@ import com.iti.intake40.covid_19tracker.data.model.COVID
 import kotlinx.android.synthetic.main.covidcell.view.*
 import android.text.style.UnderlineSpan
 import android.text.SpannableString
+import android.widget.Filter
+import android.widget.Filterable
 import com.iti.intake40.covid_19tracker.view.activities.DetailsActivity
+import java.util.*
 
 
 class HomeAdapter(private var dataList: List<COVID>, private val context: Context) :
-    RecyclerView.Adapter<HomeAdapter.ViewHolder>() {
-
+    RecyclerView.Adapter<HomeAdapter.ViewHolder>(), Filterable {
+    private var dataFilterList = listOf<COVID>()
+    init {
+        dataFilterList = dataList
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
@@ -28,26 +34,61 @@ class HomeAdapter(private var dataList: List<COVID>, private val context: Contex
         )
     }
 
-    override fun getItemCount(): Int = dataList.size
+    override fun getItemCount(): Int = dataFilterList.size
 
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        System.out.println("ff")
         // country name
-        val content = SpannableString(dataList[position].countryName)
+        val content = SpannableString(dataFilterList[position].countryName)
         content.setSpan(UnderlineSpan(), 0, content.length, 0)
         holder.itemView.countryName.text = content
 
         holder.itemView.countryName.setOnClickListener(View.OnClickListener {
             val detailIntent = Intent(context,DetailsActivity::class.java)
-            detailIntent.putExtra("covid",dataList[position])
+            detailIntent.putExtra("covid",dataFilterList[position])
             context.startActivity(detailIntent)
         })
         //confirmed
-        holder.itemView.confirmed.text = dataList[position].cases
+        holder.itemView.confirmed.text = dataFilterList[position].cases
         //recovered
-        holder.itemView.recovered.text = dataList[position].recover
+        holder.itemView.recovered.text = dataFilterList[position].recover
         //death
-        holder.itemView.death.text = dataList[position].deaths
+        holder.itemView.death.text = dataFilterList[position].deaths
+    }
+
+    override fun getFilter(): Filter {
+
+         return object : Filter(){
+             override fun performFiltering(constraint: CharSequence?): FilterResults {
+                 val charSearch = constraint.toString()
+                 if (charSearch.isEmpty()) {
+
+                     dataFilterList = dataList
+                 }
+                 else {
+                     val resultList =mutableListOf<COVID>()
+
+                     for (row in dataList) {
+                         if (row.countryName.toLowerCase(Locale.ROOT).startsWith(charSearch.toLowerCase(Locale.ROOT),true)) {
+
+                             resultList.add(row)
+                         }
+                     }
+                     dataFilterList = resultList
+
+                 }
+                 val filterResults = FilterResults()
+                 filterResults.values = dataFilterList
+                 return filterResults
+             }
+             @Suppress("UNCHECKED_CAST")
+             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                 dataFilterList = results?.values as List<COVID>
+
+                 notifyDataSetChanged()
+             }
+         }
     }
 
 

@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,6 +20,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var viewModel: MainViewModel
     private var dataList = listOf<COVID>()
+    private var adapter = HomeAdapter(dataList,this)
     private lateinit var progressDialog: ProgressDialog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,13 +38,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupViews() {
+
         covidRecycle.layoutManager = LinearLayoutManager(this)
-        covidRecycle.adapter = HomeAdapter(dataList, this)
+        covidRecycle.adapter = adapter
         noResultLayout.visibility = View.GONE
         reloadButton.setOnClickListener{
             showProgressDialog()
             loadData()
         }
+        search()
     }
 
     private fun showReloadMessage()
@@ -88,10 +92,52 @@ class MainActivity : AppCompatActivity() {
                 } else if (data.isNotEmpty()) {
                     dataList = data
                     progressDialog.dismiss()
-                    covidRecycle.adapter = HomeAdapter(dataList, this)
+                    refreshRecycle()
                     hideReloadMessage()
                 }
             })
     }
+
+
+    private fun search()
+    {
+        country_search.setOnQueryTextListener(object: SearchView.OnQueryTextListener{
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if(query?.trim()?.isEmpty()!!)
+                {
+                    refreshRecycle()
+                }
+                else
+                {
+                    adapter.filter.filter(query)
+                }
+
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+
+                if(newText?.trim()?.isEmpty()!!)
+                {
+                    refreshRecycle()
+                }
+                else
+                {
+                    adapter.filter.filter(newText)
+                }
+
+                return false
+            }
+
+        })
+    }
+
+     private fun refreshRecycle()
+     {
+         adapter =  HomeAdapter(dataList,this)
+         covidRecycle.adapter = adapter
+     }
+
+
 
 }

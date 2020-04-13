@@ -6,4 +6,5 @@
     <string name="confirmed">Confirmed Cases</string>
     <string name="recovered">Recovered Cases</string>
     <string name="total_deaths">Total deaths</string>
+    <string name="searchHint">Find your country</string>
 </resources>

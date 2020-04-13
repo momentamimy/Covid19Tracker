@@ -36,7 +36,7 @@ class COVIDRepo(application: Application) : COVIDRepository {
                 val obj = JSONObject(response!!.body()!!.string())
                 val arr: JSONArray = obj.getJSONArray("countries_stat")
                 data.value = gson.fromJson(arr.toString(), Array<COVID>::class.java).toList()
-                localDataSource.deleteAllData();
+                localDataSource.deleteAllData()
                 localDataSource.addAllData(data.value!!)
             }
             override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {

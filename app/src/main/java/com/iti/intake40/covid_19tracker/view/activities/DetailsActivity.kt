@@ -23,6 +23,11 @@ class DetailsActivity : AppCompatActivity() {
         detailsRecycle.layoutManager =  LinearLayoutManager(this)
         val covid = intent.getSerializableExtra("covid") as COVID
         detailsRecycle.adapter = DetailsAdapter(covid.toMap(),this)
+
+        // here check if this country subscribed or not
+        // now i put it unsubscribed until room created
+        subscribeBtn.setImageResource(R.drawable.unsubscribe)
+        subscribeFlag = false
     }
 
     fun subscribe(view: View) {
