@@ -29,8 +29,9 @@ class LocalDataSource {
 
     fun addAllData(list: List<COVID>) {
         CoroutineScope(IO).launch {
-            for (index in 0..list.size - 1) {
-                covidDao.addCOVID(list.get(index))
+            for (index in list.indices) {
+                covidDao.addCOVID(list[index])
+
             }
         }
     }
