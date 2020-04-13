@@ -5,6 +5,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 @Entity(tableName = "COVID")
  data class COVID (
@@ -57,5 +59,19 @@ import com.google.gson.annotations.SerializedName
     @Expose
     @ColumnInfo(name = "total_cases_per_1m_population")
     @SerializedName("total_cases_per_1m_population")
-    val total_cases_per_1m_population: String
- )
+    val total_per_1m_population: String
+ ): Serializable {
+
+
+   // Convert an object to a Map
+    fun toMap(): Map<String, Any> {
+      return convert()
+   }
+
+   // Convert an object of type T to type R
+  private inline fun <T, reified R> T.convert(): R {
+      val mapper = jacksonObjectMapper()
+      val json = mapper.writeValueAsString(this)
+      return mapper.readValue(json, R::class.java)
+   }
+}

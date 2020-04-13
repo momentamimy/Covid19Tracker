@@ -1,6 +1,7 @@
 package com.iti.intake40.covid_19tracker.view.adapters
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +11,7 @@ import com.iti.intake40.covid_19tracker.data.model.COVID
 import kotlinx.android.synthetic.main.covidcell.view.*
 import android.text.style.UnderlineSpan
 import android.text.SpannableString
+import com.iti.intake40.covid_19tracker.view.activities.DetailsActivity
 
 
 class HomeAdapter(private var dataList: List<COVID>, private val context: Context) :
@@ -36,7 +38,9 @@ class HomeAdapter(private var dataList: List<COVID>, private val context: Contex
         holder.itemView.countryName.text = content
 
         holder.itemView.countryName.setOnClickListener(View.OnClickListener {
-          //  holder.itemView.countryName.setTextColor(Color.RED)
+            val detailIntent = Intent(context,DetailsActivity::class.java)
+            detailIntent.putExtra("covid",dataList[position])
+            context.startActivity(detailIntent)
         })
         //confirmed
         holder.itemView.confirmed.text = dataList[position].cases
