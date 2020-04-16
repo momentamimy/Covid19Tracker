@@ -15,12 +15,21 @@ import com.iti.intake40.covid_19tracker.data.model.COVID
 import com.iti.intake40.covid_19tracker.view.adapters.HomeAdapter
 import com.iti.intake40.covid_19tracker.viewModel.MainViewModel
 import kotlinx.android.synthetic.main.activity_main.*
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import android.util.Log
+import android.widget.Switch
+import androidx.work.*
+import com.iti.intake40.covid_19tracker.service.CreateWorkService
+import com.iti.intake40.covid_19tracker.service.LoadFirstWorkerManger
+
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var viewModel: MainViewModel
     private var dataList = listOf<COVID>()
-    private var adapter = HomeAdapter(dataList,this)
+    private var adapter = HomeAdapter(dataList, this)
     private lateinit var progressDialog: ProgressDialog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,35 +37,29 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
         setupViews()
-        showProgressDialog()
     }
 
     override fun onStart() {
         super.onStart()
-
         loadDataLocal()
     }
 
     private fun setupViews() {
-
+        progressDialog = ProgressDialog(this)
         covidRecycle.layoutManager = LinearLayoutManager(this)
         covidRecycle.adapter = adapter
         noResultLayout.visibility = View.GONE
-        reloadButton.setOnClickListener{
-            showProgressDialog()
-            loadData()
-        }
+        swipeContainer.setOnRefreshListener { reloadData() }
         search()
     }
 
-    private fun showReloadMessage()
-    {
+    private fun showReloadMessage() {
         noResultLayout.visibility = View.VISIBLE
         covidRecycle.visibility = View.GONE
         table_header.visibility = View.GONE
     }
-    private fun hideReloadMessage()
-    {
+
+    private fun hideReloadMessage() {
         noResultLayout.visibility = View.GONE
         covidRecycle.visibility = View.VISIBLE
         table_header.visibility = View.VISIBLE
@@ -64,51 +67,59 @@ class MainActivity : AppCompatActivity() {
 
     private fun showProgressDialog() {
         // progress
-        progressDialog = ProgressDialog(this)
         progressDialog.setTitle("Loading")
         progressDialog.setCancelable(false)
         progressDialog.show()
     }
 
-    private fun loadData() {
+    private fun hideProgressDialog() {
+            progressDialog.dismiss()
+    }
+
+    private fun reloadData() {
         viewModel.getData(application).observe(this,
             Observer<List<COVID>> { data ->
                 if (data == null) {
-                    progressDialog.dismiss()
-                    showReloadMessage()
+                    Toast.makeText(this,"Please check the internet connection",Toast.LENGTH_LONG).show()
+                    swipeContainer.isRefreshing=false
                 }
-
+                else
+                {
+                    swipeContainer.isRefreshing=false
+                }
             })
     }
+
 
     private fun loadDataLocal() {
         viewModel.getLocalData(application)?.observe(this,
             Observer<List<COVID>> { data ->
-                if (data == null) {
-                    progressDialog.dismiss()
-                    Toast.makeText(this, "Can't load States", Toast.LENGTH_LONG).show()
-                } else if (data.isEmpty()) {
-                    loadData()
+                if (data.isEmpty()) {
+                    showReloadMessage()
+                    val request = viewModel.createPeriodicWork(application)
+                    WorkManager.getInstance(this).getWorkInfoByIdLiveData(request.getId())
+                        .observe(this, Observer<WorkInfo> { workInfo ->
+                            if (workInfo != null && workInfo.state == WorkInfo.State.RUNNING) {
+                                println("TAAAAAG RUNNING")
+                                showProgressDialog()
+                            }
+                        })
                 } else if (data.isNotEmpty()) {
                     dataList = data
-                    progressDialog.dismiss()
-                    refreshRecycle()
                     hideReloadMessage()
+                    hideProgressDialog()
+                    refreshRecycle()
                 }
             })
     }
 
 
-    private fun search()
-    {
-        country_search.setOnQueryTextListener(object: SearchView.OnQueryTextListener{
+    private fun search() {
+        country_search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                if(query?.trim()?.isEmpty()!!)
-                {
+                if (query?.trim()?.isEmpty()!!) {
                     refreshRecycle()
-                }
-                else
-                {
+                } else {
                     adapter.filter.filter(query)
                 }
 
@@ -117,12 +128,9 @@ class MainActivity : AppCompatActivity() {
 
             override fun onQueryTextChange(newText: String?): Boolean {
 
-                if(newText?.trim()?.isEmpty()!!)
-                {
+                if (newText?.trim()?.isEmpty()!!) {
                     refreshRecycle()
-                }
-                else
-                {
+                } else {
                     adapter.filter.filter(newText)
                 }
 
@@ -132,12 +140,10 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-     private fun refreshRecycle()
-     {
-         adapter =  HomeAdapter(dataList,this)
-         covidRecycle.adapter = adapter
-     }
-
+    private fun refreshRecycle() {
+        adapter = HomeAdapter(dataList, this)
+        covidRecycle.adapter = adapter
+    }
 
 
 }

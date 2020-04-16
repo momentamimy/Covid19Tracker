@@ -16,6 +16,8 @@ interface Dao {
     @Query("delete from COVID")
     suspend fun deleteAllCOVID()
 
+    @Query("SELECT COUNT(*) from COVID")
+    suspend fun getRowsCount() : Int
 
     @Query("select * from COVID")
     fun getAllCOVID(): LiveData<List<COVID>>
