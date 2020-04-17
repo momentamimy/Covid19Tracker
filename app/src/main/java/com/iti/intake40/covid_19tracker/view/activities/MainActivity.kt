@@ -1,6 +1,7 @@
 package com.iti.intake40.covid_19tracker.view.activities
 
 import android.app.ProgressDialog
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -36,6 +37,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
+        checkIntent()
         setupViews()
     }
 
@@ -44,12 +46,23 @@ class MainActivity : AppCompatActivity() {
         loadDataLocal()
     }
 
+    private fun checkIntent()
+    {
+        if (intent.getSerializableExtra("covid")!=null)
+        {
+            val covid = intent.getSerializableExtra("covid") as COVID
+            val detailIntent = Intent(this,DetailsActivity::class.java)
+            detailIntent.putExtra("covid",covid)
+            startActivity(detailIntent)
+        }
+    }
+
     private fun setupViews() {
         progressDialog = ProgressDialog(this)
         covidRecycle.layoutManager = LinearLayoutManager(this)
         covidRecycle.adapter = adapter
         noResultLayout.visibility = View.GONE
-        swipeContainer.setOnRefreshListener { reloadData() }
+        swipeContainer.setOnRefreshListener { viewModel.createPeriodicWork(application)/*reloadData()*/ }
         search()
     }
 

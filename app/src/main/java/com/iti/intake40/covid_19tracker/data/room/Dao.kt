@@ -16,6 +16,9 @@ interface Dao {
     @Query("delete from COVID")
     suspend fun deleteAllCOVID()
 
+    @Query("select * from COVID where  country_name == :name")
+    suspend fun getCOVID(name:String):COVID
+
     @Query("SELECT COUNT(*) from COVID")
     suspend fun getRowsCount() : Int
 

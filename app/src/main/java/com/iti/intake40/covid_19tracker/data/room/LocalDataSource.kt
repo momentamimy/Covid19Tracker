@@ -27,17 +27,15 @@ class LocalDataSource {
         covidDao.deleteAllCOVID()
     }
 
-    fun addAllData(list: List<COVID>) {
-        CoroutineScope(IO).launch {
-            if (covidDao.getRowsCount() == 0)
-                for (index in list.indices) {
-                    covidDao.addCOVID(list.get(index))
-                }
-            else
-                for (index in list.indices) {
-                    covidDao.updateCOVID(list.get(index))
-                }
-        }
+    suspend fun addAllData(list: List<COVID>) {
+        if (covidDao.getRowsCount() == 0)
+            for (index in list.indices) {
+                covidDao.addCOVID(list.get(index))
+            }
+        else
+            for (index in list.indices) {
+                covidDao.updateCOVID(list.get(index))
+            }
     }
 
     fun getAllCovid(): LiveData<List<COVID>>? {
@@ -46,4 +44,5 @@ class LocalDataSource {
         return list
     }
 
+    suspend fun getCovidByName(name: String) = covidDao.getCOVID(name)
 }

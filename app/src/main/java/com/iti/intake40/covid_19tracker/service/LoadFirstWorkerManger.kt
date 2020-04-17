@@ -14,15 +14,12 @@ import kotlinx.coroutines.launch
 class LoadFirstWorkerManger(val context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
     override fun doWork(): Result
     {
-        val notificationHelper = NotificationHelper(context, "notify", "wait your trip")
-        val nb:NotificationCompat.Builder = notificationHelper.channelNotification
-        notificationHelper.manager?.notify(5, nb.build())
         loadData()
         return Result.success()
     }
 
     private fun loadData() {
         val covidRepo: COVIDRepository = COVIDRepo(context)
-        covidRepo.getCOVIDData()
+        covidRepo.getCOVIDDataFromWork()
     }
 }

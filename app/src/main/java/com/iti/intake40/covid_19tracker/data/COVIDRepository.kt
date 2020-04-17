@@ -7,6 +7,5 @@ interface COVIDRepository {
 
      fun getCOVIDLocalData():LiveData<List<COVID>>?
      fun getCOVIDData():LiveData<List<COVID>>
-     fun insertAllCovidIntoRoom(list:List<COVID>)
      fun getCOVIDDataFromWork(): LiveData<List<COVID>>
 }
