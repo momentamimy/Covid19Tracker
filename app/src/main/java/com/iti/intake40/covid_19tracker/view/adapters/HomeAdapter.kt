@@ -38,7 +38,6 @@ class HomeAdapter(private var dataList: List<COVID>, private val context: Contex
 
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        System.out.println("ff")
         // country name
         val content = SpannableString(dataFilterList[position].countryName)
         content.setSpan(UnderlineSpan(), 0, content.length, 0)

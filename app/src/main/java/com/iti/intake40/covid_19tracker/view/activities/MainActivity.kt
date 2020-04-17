@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import android.util.Log
 import android.widget.Switch
+import androidx.core.view.isEmpty
 import androidx.work.*
 import com.iti.intake40.covid_19tracker.service.CreateWorkService
 import com.iti.intake40.covid_19tracker.service.LoadFirstWorkerManger
@@ -44,6 +45,7 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         loadDataLocal()
+
     }
 
     private fun checkIntent()
@@ -138,7 +140,6 @@ class MainActivity : AppCompatActivity() {
 
                 return false
             }
-
             override fun onQueryTextChange(newText: String?): Boolean {
 
                 if (newText?.trim()?.isEmpty()!!) {
