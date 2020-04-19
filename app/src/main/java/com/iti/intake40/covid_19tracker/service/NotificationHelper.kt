@@ -66,7 +66,7 @@ class NotificationHelper(
             .setContentText(body)
             .setContentIntent(pendingIntent)
             .setColor(resources.getColor(R.color.colorPrimary))
-            .setSmallIcon(R.drawable.border).setAutoCancel(true)
+            .setSmallIcon(R.mipmap.ic_launcher_round).setAutoCancel(true)
 
 
 }
