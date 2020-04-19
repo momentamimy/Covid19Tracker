@@ -4,6 +4,7 @@ import android.annotation.TargetApi
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_CANCEL_CURRENT
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
@@ -15,7 +16,7 @@ import com.iti.intake40.covid_19tracker.view.activities.MainActivity
 
 class NotificationHelper(
     base: Context?,
-    val covid:COVID,
+    val covid:COVID?,
     val title: String,
     val body: String
 ) : ContextWrapper(base) {
@@ -31,7 +32,7 @@ class NotificationHelper(
         notificationIntent.putExtra("covid",covid)
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
 
-        pendingIntent = PendingIntent.getActivity(base, 0, notificationIntent, 0);
+        pendingIntent = PendingIntent.getActivity(base, 0, notificationIntent, FLAG_CANCEL_CURRENT);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createChannel()
@@ -65,7 +66,7 @@ class NotificationHelper(
             .setContentText(body)
             .setContentIntent(pendingIntent)
             .setColor(resources.getColor(R.color.colorPrimary))
-            .setSmallIcon(R.drawable.border)
+            .setSmallIcon(R.drawable.border).setAutoCancel(true)
 
 
 }

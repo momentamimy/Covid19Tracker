@@ -4,6 +4,7 @@ import android.app.ProgressDialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
@@ -16,15 +17,14 @@ import com.iti.intake40.covid_19tracker.data.model.COVID
 import com.iti.intake40.covid_19tracker.view.adapters.HomeAdapter
 import com.iti.intake40.covid_19tracker.viewModel.MainViewModel
 import kotlinx.android.synthetic.main.activity_main.*
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-import android.util.Log
-import android.widget.Switch
-import androidx.core.view.isEmpty
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.widget.NumberPicker
+import androidx.appcompat.app.AlertDialog
+import androidx.core.view.get
 import androidx.work.*
-import com.iti.intake40.covid_19tracker.service.CreateWorkService
-import com.iti.intake40.covid_19tracker.service.LoadFirstWorkerManger
+import java.util.concurrent.TimeUnit
 
 
 class MainActivity : AppCompatActivity() {
@@ -42,19 +42,31 @@ class MainActivity : AppCompatActivity() {
         setupViews()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater: MenuInflater = getMenuInflater();
+        inflater.inflate(R.menu.setting, menu);
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.Setting) {
+            showAlertdialog("update period")
+        }
+
+        return true
+    }
+
     override fun onStart() {
         super.onStart()
         loadDataLocal()
 
     }
 
-    private fun checkIntent()
-    {
-        if (intent.getSerializableExtra("covid")!=null)
-        {
+    private fun checkIntent() {
+        if (intent.getSerializableExtra("covid") != null) {
             val covid = intent.getSerializableExtra("covid") as COVID
-            val detailIntent = Intent(this,DetailsActivity::class.java)
-            detailIntent.putExtra("covid",covid)
+            val detailIntent = Intent(this, DetailsActivity::class.java)
+            detailIntent.putExtra("covid", covid)
             startActivity(detailIntent)
         }
     }
@@ -64,7 +76,7 @@ class MainActivity : AppCompatActivity() {
         covidRecycle.layoutManager = LinearLayoutManager(this)
         covidRecycle.adapter = adapter
         noResultLayout.visibility = View.GONE
-        swipeContainer.setOnRefreshListener { viewModel.createPeriodicWork(application)/*reloadData()*/ }
+        swipeContainer.setOnRefreshListener { reloadData() }
         search()
     }
 
@@ -88,19 +100,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun hideProgressDialog() {
-            progressDialog.dismiss()
+        progressDialog.dismiss()
     }
 
     private fun reloadData() {
         viewModel.getData(application).observe(this,
             Observer<List<COVID>> { data ->
                 if (data == null) {
-                    Toast.makeText(this,"Please check the internet connection",Toast.LENGTH_LONG).show()
-                    swipeContainer.isRefreshing=false
-                }
-                else
-                {
-                    swipeContainer.isRefreshing=false
+                    Toast.makeText(this, "Please check the internet connection", Toast.LENGTH_LONG)
+                        .show()
+                    swipeContainer.isRefreshing = false
+                } else {
+                    swipeContainer.isRefreshing = false
                 }
             })
     }
@@ -111,7 +122,15 @@ class MainActivity : AppCompatActivity() {
             Observer<List<COVID>> { data ->
                 if (data.isEmpty()) {
                     showReloadMessage()
-                    val request = viewModel.createPeriodicWork(application)
+                    val pair: Pair<Long?, String?> = viewModel.getPeriod(this)
+                    var positionNumber: Long? = pair.first
+                    var positionDate: TimeUnit = TimeUnit.HOURS
+                    if (pair.second.equals("Day")) {
+                        positionDate = TimeUnit.DAYS
+                    } else if (pair.second.equals("Hour")) {
+                        positionDate = TimeUnit.HOURS
+                    }
+                    val request = viewModel.createPeriodicWork(application, positionNumber!!,positionDate )
                     WorkManager.getInstance(this).getWorkInfoByIdLiveData(request.getId())
                         .observe(this, Observer<WorkInfo> { workInfo ->
                             if (workInfo != null && workInfo.state == WorkInfo.State.RUNNING) {
@@ -140,6 +159,7 @@ class MainActivity : AppCompatActivity() {
 
                 return false
             }
+
             override fun onQueryTextChange(newText: String?): Boolean {
 
                 if (newText?.trim()?.isEmpty()!!) {
@@ -159,5 +179,58 @@ class MainActivity : AppCompatActivity() {
         covidRecycle.adapter = adapter
     }
 
+    fun showAlertdialog(title: String) {
+        val view = layoutInflater.inflate(R.layout.period_dialog, null)
+        val numberPicker: NumberPicker = view.findViewById(R.id.Number)
+        val datePicker: NumberPicker = view.findViewById(R.id.Date)
 
+        numberPicker.minValue = 1
+        numberPicker.maxValue = 30
+        val strings = arrayOf("Hour", "Day")
+        datePicker.displayedValues = strings
+        datePicker.minValue = 0
+        datePicker.maxValue = strings.size - 1
+
+        val pair: Pair<Long?, String?> = viewModel.getPeriod(this)
+        var positionNumber: Long? = pair.first
+        var positionDate: TimeUnit = TimeUnit.HOURS
+        if (pair.second.equals("Day")) {
+            positionDate = TimeUnit.DAYS
+            datePicker.value=1
+        } else if (pair.second.equals("Hour")) {
+            positionDate = TimeUnit.HOURS
+            datePicker.value=0
+        }
+        numberPicker.value=positionNumber!!.toInt()
+
+
+        datePicker.setOnValueChangedListener { picker, oldVal, newVal ->
+            if (newVal == 0)
+                positionDate = TimeUnit.HOURS
+            else if (newVal == 1)
+                positionDate = TimeUnit.DAYS
+        }
+        numberPicker.setOnValueChangedListener { picker, oldVal, newVal ->
+            positionNumber = newVal.toLong()
+        }
+
+        val builder = AlertDialog.Builder(this)
+        builder.setView(view)
+        builder.setTitle(title)
+        builder.setPositiveButton("Ok") { dialog, which ->
+
+            viewModel.createPeriodicWork(application, positionNumber!!, positionDate)
+
+            if (positionDate.equals(TimeUnit.DAYS)) {
+                viewModel.savePeriod(this, positionNumber!!, "Day")
+            } else if (positionDate.equals(TimeUnit.HOURS)) {
+                viewModel.savePeriod(this, positionNumber!!, "Hour")
+            }
+        }
+        builder.setNegativeButton("Cancel") { dialog, which ->
+
+        }
+        val dialog: AlertDialog = builder.create()
+        dialog.show()
+    }
 }

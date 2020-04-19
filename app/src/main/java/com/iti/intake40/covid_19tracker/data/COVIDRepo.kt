@@ -100,7 +100,7 @@ class COVIDRepo(val context: Context) : COVIDRepository {
                     newCOVID = it
             }
             for (prop in COVID::class.memberProperties) {
-                if (prop.get(newCOVID)!!.equals(prop.get(covid))) {
+                if (!prop.get(newCOVID)!!.equals(prop.get(covid))) {
                     print("LAAAAAAAAAA Changes")
                     triggerNotification(newCOVID)
                     break
