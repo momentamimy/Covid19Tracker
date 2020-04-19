@@ -13,6 +13,10 @@ class CreateWorkService (val context: Context,val repeatInterval:Long,val timeun
 
         val request = PeriodicWorkRequest.Builder(LoadFirstWorkerManger::class.java!!,repeatInterval,timeunit)
             .setConstraints(constraints)
+            .setBackoffCriteria(
+                BackoffPolicy.LINEAR,
+                PeriodicWorkRequest.MIN_BACKOFF_MILLIS,
+                TimeUnit.MILLISECONDS)
             .build()
         WorkManager.getInstance(context).enqueueUniquePeriodicWork("CovidWork", ExistingPeriodicWorkPolicy.KEEP, request)
 
